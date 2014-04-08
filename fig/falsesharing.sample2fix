@@ -1,0 +1,10 @@
+void * child (int S) {
+  for(i = S; i< S + W; i++) {
+    int temp = Array[i];
+
+    for(j = 0; j < 1M; j++)
+      temp++;
+  
+    Array[i] = temp;
+  }
+}

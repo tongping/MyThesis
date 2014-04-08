@@ -1,0 +1,37 @@
+For decades, applications enjoyed automatic and regular performance gains from increasing CPU speed.  However, the increase of CPU speed results in consuming more energy and generating more heat. Thus, Intel and other vendors have turned to providing multiple cores on a single machine. To take advantage of multiple cores, software needs to be written using multithreading. 
+
+Building efficient and reliable multithreaded programs is still a challenging task because of the following reasons. First, concurrency requires programmers to think in an unnatural way that humans find difficult.  Second, existing languages and tools are inadequate to detect or prevent concurrency errors and performance anomalies. 
+
+% Why we need determinism? Concurrency errors?
+Concurrency errors of multithreaded programs, such as race conditions, atomicity violations, order violations, and deadlocks, are very hard to debug ~\cite{Lu:2008:LMC:1346281.1346323}, because their occurrences highly depend on some specific conditions, such as thread interleavings and CPU scheduling ~\cite{DBLP:conf/icse/BallBHMQ09,DBLP:conf/asplos/BurckhardtKMN10}. Instead of detecting possible concurrency errors, one promising alternative approach is to attack the problem of concurrency bugs by eliminating its source: non-determinism. A fully \emph{deterministic multithreading system} would prevent Heisenbugs by ensuring that executions of the same program with the same inputs always yield the same results, even in the face of race conditions in the code. Such a system would not only dramatically simplify debugging of concurrent
+programs~\cite{Carver:1991:RTC:624586.625040} and reduce their attendant testing overhead, but would also enable a number of other applications. For example, a deterministic multithreaded system would greatly simplify record-and-replay for multithreaded programs~\cite{Choi:1998:DRJ:281035.281041,LeBlanc:1987:DPP:32387.32396} and the deterministic replication of a multithreaded application on different machines for fault tolerance~\cite{deterministic-process-groups,1134000,224058,replicant-hotos}.
+
+% Why we need to find out false sharing problems.
+It is also difficult to write efficient multithreaded programs. The {\it false sharing} problem is a notorious performance problem for multithreaded programs~\cite{falseshare:effect, falseshare:Analysis}. It occurs when multiple threads, running on different cores with their separate caches, access logically independent words in the same cache line. If a thread modifies  a cache line, the cache coherence protocol invalidates the duplicates of this cache line in other caches, which is crucial for true sharing cases. However, it is totally unnecessary for false sharing cases. False sharing can force one core to wait unnecessarily for updates from another processor, thus wasting both the CPU time and precious memory bandwidth. 
+
+\subsection*{Contributions}
+
+This thesis handles two categories of problems for multithreaded programs, {\it reliability} and {\it performance}. It makes the following contributions:
+
+\begin{itemize}
+\item \Sheriff{} framework: I developed a novel processes-as-threads framework derived from Grace~\cite{grace}. \sheriff{} is a software-only drop-in replacement of the stand \pthreads{} library. It turns threads into processes, with separate address spaces but a shared file table. \sheriff{} provides per-thread memory protection and isolation on page granularity by relying on the stand memory protection mechanism and a twinning-and-diffing mechanism. \sheriff{} enables a range of possible applications, including language support and enforcement of data sharing, software transactional memory, thread-level speculation, and race detection. 
+
+\item I developed an efficient deterministic multithreading system, \dthreads{}, for unmodified C/C++ applications,  without programmer intervention and hardware support. \dthreads{} is based on the \sheriff{} framework to isolate executions of different threads. \dthreads{} outperforms the previous state-of-the-art runtime system (CoreDet) by a factor of 3, and often matches and sometimes exceeds the performance with the standard \pthreads{} library. \Dthreads{} enforces robust/stable determinism even in the face of data races, greatly simplifying program understanding and debugging: programs always behave identically, even with different inputs and on different hardware, as long as the synchronization order is the same. Because of this, \dthreads{} can also be used to support replicated executions of multithreaded applications for fault tolerance purposes.
+
+\item 
+Based on the \sheriff{} framework, I developed another two tools, \SheriffDetect{} and \SheriffProtect{}, to deal with false sharing problems of multithreaded programs, one of the notorious performance problems. 
+\SheriffDetect{} find instances of false sharing accurately (no false positives), runs with low overhead (on average 20\%), and can pinpoint global variables and heap objects involving in false sharing. \SheriffProtect{} mitigates false sharing by adaptively isolating shared accesses on a cache line from different threads into separate physical addresses, effectively eliminating the performance impact of false sharing. It can automatically boost the performance of multithreaded applications with false sharing problems. 
+
+\item I also developed a tool, \predator{}, to improve the effectiveness of false sharing detection. Instead of relying on the \sheriff{} framework to track memory writes, \predator{} employs compiler instrumentation to track read and write memory accesses, which make it possible to detect one more type of false sharing, {\it read-write} false sharing. \Predator{} also overcomes a key limitation of previous detection tools: existing tools can only detect observed false sharing problems. However, occurrences of false sharing highly depend on memory layout and size of a cache line, which are affected by a lot of dynamic properties. \Predator{} can predict potential false sharing that does not manifest in a given execution but may appear---and greatly degrade application performance—--in a slightly different execution environment. \Predator{} is the first false sharing tool able to automatically and precisely uncover false sharing problems in real applications, including MySQL and the Boost library.
+
+
+\end{itemize}
+
+\subsection*{Outline}
+The rest of this thesis is organized as follows. Chapter~\ref{chapter:problems} describes reliability and performance problems of multithreaded programs, which we are going to handle in this thesis. Chapter~\ref{sec:sheriffframework} describes the processes-as-threads framework, \sheriff{}, which is the basis of \dthreads{}, \SheriffDetect{} and \SheriffProtect{}. Chapter~\ref{chapter:dthreads} describes \dthreads{} that ensures deterministic execution for multithreaded programs linking to this drop-in library. Chapter~\ref{chapter:sherifftools} discusses how to precisely detect and automatically tolerate false sharing problems based on the \sheriff{} framework. Chapter~\ref{chapter:preditor} describes a generalized false sharing detection tool by combining compiler instrumentation and runtime system, which improves the effectiveness of false sharing detection. 
+Chapter~\ref{chapter:relatedwork} provides a substantial comparison between previous work and our approaches.  Chapter~\ref{chapter:conclusion} concludes the thesis with its contributions and possible future work. 
+
+
+%%
+%% Some sample text
+

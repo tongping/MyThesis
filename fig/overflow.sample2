@@ -1,0 +1,3 @@
+char * str;
+str = (char *)malloc(5);
+strcpy(str, "a test");

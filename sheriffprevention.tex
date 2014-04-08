@@ -1,0 +1,26 @@
+\label{sec:sheriffprotect}
+While \SheriffDetect{} can effectively find those false sharing problems of multithreaded programs, it is sometimes difficult or impossible to fix them. For example, padding memory to avoid false sharing may even slowdown the performance because of excessive memory consumption or reducing cache utilization~\cite{qinzhao}. Also, time constraints or unavailable source code may prevent the fixes. 
+
+Based on the \sheriff{} framework, we provide the second tool, \SheriffProtect{}, to automatically boost the performance for multithreaded applications with false sharing problems, without programmer intervention.  
+
+\SheriffProtect{} borrows the insight initially introduced by Dubois et.al.~\cite{Dubois:1991:DCE:125826.125941}: {\it delaying updates avoids false sharing}. Because \Sheriff{} replaces threads with processes, executions of different threads are actually isolated from each other. Thus, different ``threads'' (processes) actually access different physical pages (and cache lines), when originally they are accessing the same cache line in the multithreading environment. This helps avoid false sharing problems. 
+
+However, simply using the \sheriff{} framework introduces excessive performance overhead because of the following reasons: 
+
+\begin{itemize}
+\item
+The overhead of protecting and committing all pages may be too high. As we already know in Section~\ref{sec:sheriffframework}, \sheriff{} has to commit all local changes of different threads  to the shared mapping at the end of every transaction (synchronization points) in order to achieve the shared memory semantics. 
+
+\item
+If the length of a transaction is short, the overhead of protecting and committing pages in the \sheriff{} framework can be easily higher than the performance benefit by tolerating possible false sharing problems inside. Thus, there is no benefit to tolerate false sharing problems for short-running transactions. 
+
+\end{itemize}
+
+\sheriffprotect{} provides two corresponding mechanisms to avoid these possible overhead. 
+
+\emph{Selective Protection.} 
+\SheriffProtect{} only prevents false sharing on small objects, with size less than 1024 bytes. All large objects are mapped shared and are never protected, thus can not tolerate false sharing problems caused by these large objects. We expect  small objects to be a likely source of false sharing because more of them can fit on a cache line. Also, for large objects, the cost of protecting and committing changes can be bigger than the benefit of tolerating possible false sharing problems inside. 
+
+\emph{Adaptive Prevention.}
+\SheriffProtect{} employs a simple adaptive mechanism: it only isolates threads' executions if the average transaction length is large than a pre-set threshold. \SheriffProtect{} keeps track of the length of each transaction and uses a exponential weighted averaging ($\alpha = 0.9$) to calculate the average transaction length. If the average transaction length falls below an established threshold, \SheriffProtect{} switches to the shared mappings for all memory and does no further page protections. As long as transactions remain too short, 
+ without any benefit to tolerate false sharing problems inside, the protection mechanisms remain switched off. If the average transaction length rises back above the threshold, \SheriffProtect{} re-establishes private mappings and page protections, thus avoiding possible false sharing to achieve better performance.

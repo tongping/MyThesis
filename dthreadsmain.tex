@@ -1,0 +1,26 @@
+
+\label{chapter:dthreads}
+
+As described in Section~\ref{sec:nondeterminism}, non-determinism can greatly complicate the reasoning and debugging of parallel programs. To resolve this problem, several recent software-only proposals aim at providing deterministic multithreading. However, all of these existing approaches suffer from a variety of disadvantages. Language-based approaches are effective at removing non-determinism but require programmers to write code in specialized languages, which can be impractical~\cite{Bocchino:2009:TES:1640089.1640097,Burckhardt:2010:CPR:1869459.1869515,Simpson:1999:SEE:330346.330357}. Recent deterministic systems that target legacy programming languages (especially C/C++) are either incomplete or impractical. Kendo ensures determinism of synchronization operations with low overhead, but does not guarantee determinism in the presence of data races~\cite{1508256}. Grace prevents all concurrency errors but is limited to fork-join programs, and although it is efficient, it requires code modifications to avoid large runtime overhead~\cite{grace}. CoreDet, a compiler and runtime system, enforces deterministic execution for arbitrary multithreaded C/C++ programs~\cite{Bergan:2010:CCR:1736020.1736029}. However, it exhibits prohibitively high overhead (running up to $8\times$ slower than \pthreads{}; see Section~\ref{sec:dthreadsevaluation}) and generates thread interleavings at arbitrary points in the code, complicating program reasoning, debugging, and testing.
+
+\hspace{1em} \\
+\noindent
+\textbf{Contributions:}
+We develop \textbf{\dthreads{}}, an efficient deterministic runtime system for multithreaded C/C++ applications. \dthreads{} guarantees deterministic execution of multithreaded programs even in the presence of data races (notwithstanding external sources of non-determinism like I/O): given the same sequence of inputs, a program using \dthreads{} always produces the same output. \dthreads{}'s deterministic commit protocol not only eliminates data races but also prevents lock-based deadlocks.
+
+\dthreads{} is easy to deploy: it works as a direct replacement for the \pthreads{} library, requiring no code modifications or
+recompilation. \dthreads{} is also very efficient. \dthreads{} leverages process isolation and virtual memory protection to track and isolate concurrent memory updates, based on the \sheriff{} framework. Not only does this approach greatly reduce overhead, comparing to approaches that track memory reads and writes, it also eliminates cache-line based false sharing, a notorious performance problem for multithreaded
+programs. These two features combine to enable \dthreads{} to nearly match or even exceed the performance of \pthreads{} for the majority of benchmarks examined here. \dthreads{} thus marks a significant improvement over the state-of-the-art in deployability and performance, and provides promising evidence that fully deterministic multithreaded programming may be practical.
+
+\section{\dthreads{} Overview}
+\input{dthreadsoverview}
+
+\section{\dthreads{} Architecture}
+\input{dthreadsarchitecture}
+
+\section{Evaluation}
+\input{dthreadsevaluation}
+
+\section{Discussion}
+\input{dthreadsdiscussion}
+

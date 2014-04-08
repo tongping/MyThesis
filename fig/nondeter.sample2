@@ -1,0 +1,6 @@
+void * t1 () {
+  if (b == 0) {
+    a = 1;
+  }
+  return NULL;
+}

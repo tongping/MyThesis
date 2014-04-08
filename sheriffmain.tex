@@ -1,0 +1,20 @@
+\label{chapter:sherifftools}
+
+False sharing is a well-known performance issue~\cite{falseshare:effect, falseshare:Analysis}. We have discussed this problem in Section~\ref{sec:falsesharingproblems}. 
+
+Detecting false sharing requires tools support. Existing tools share a similar shortcoming, where they can not pinpoint the exact place with false sharing problems, leaving the burden of finding actual places to programmers. Besides that, existing tools suffer from one or more different shortcomings.  Simulation based approaches ~\cite{falseshare:simulator} and binary instrumentation based approaches~\cite{falseshare:binaryinstrumentation1, falseshare:binaryinstrumentation2} normally introduce very significant performance overhead, slowing down the execution over $100\times$. Hardware performance counter based approaches generally provide much better performance, but they cannot differentiate false sharing from true sharing problems~\cite{detect:ptu, detect:intel}.
+
+We provide two systems, \SheriffDetect{} and \SheriffProtect{}, to tackle with false sharing problems, based on the \sheriff{} framework that discussed in Section~\ref{sec:sheriffframework}. \Sheriff{} is a drop-in replacement of the standard \pthreads{} library, but providing ``per-thread'' protection and isolation mechanism. \SheriffDetect{} detects false sharing problem accurately (without false positives) and precisely, by pointing out the exact places with false sharing problems. It is also very efficient, only introducing 20\% performance overhead.  \SheriffProtect{} automatically tolerate false sharing problems when rewriting an application to resolve false sharing is infeasible or impractical. The reasons can be caused by either source code is unavailable, or padding data structures would degrade performance because of reduced cache utilization and/or increase memory footprint.
+
+
+%\section{\sheriff{} Framework}
+%\input{sheriff/overview}
+
+\section{Detecting False Sharing}
+\input{sheriffdetection}
+
+\section{Tolerating False Sharing}
+\input{sheriffprevention}
+
+\section{Experimental Evaluation}
+\input{sheriffevaluation}

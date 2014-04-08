@@ -1,0 +1,8 @@
+int a = b = 0;
+main() {
+ spawn(p1, t1);
+ spawn(p2, t2);
+ join(&p1);
+ join(&p2);
+ print(a, b);
+}
