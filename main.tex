@@ -246,7 +246,8 @@ The first system, \dthreads{}, automatically ensures determinism for unmodified 
 
 The second system attacks one notorious performance problem of multithreaded programs: false sharing. We provide the first accurate and precise detection tool,  \sheriffdetect{}, which can pinpoint the name of global variables or the allocation context of heap objects that involve in false sharing problems, without false positives.  However, rewriting a program to fix false sharing can be infeasible when source code is unavailable, or undesirable when padding objects can increase excessive memory consumption or further worsen runtime performance. To resolve this problem, we provide a runtime system, \SheriffProtect{}, to automatically boost the performance of programs with false sharing problems. 
 
-The third system, \predator{}, improves the effectiveness of false sharing detection. It can detect one more type of false sharing: {\it read-write} false sharing. Also, it can even detect false sharing problems without occurrences, thus overcomes a shortcoming of all existing tools: they can only detect those observed false sharing problems. \Predator{} is the first tool to uncover false sharing problems of real applications. 
+The third system, \predator{}, improves the effectiveness of false sharing detection. It can detect one more type of false sharing: {\it read-write} false sharing. Also, it can even detect false sharing problems without occurrences, thus overcomes a shortcoming of all existing tools: they can only detect those observed false sharing problems. 
+%\Predator{} is the first tool to uncover false sharing problems of real applications. 
 
 \end{abstract}
 
